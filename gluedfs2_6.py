@@ -16,12 +16,18 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 TMSU="~/src/tmsu-x86_64-0.6.1/bin/tmsu "
+####
+DEBUG=1 #all debug strings
+DEBUG=2 #some debug strings
+DEBUG=3 #almost no strings
+
 
 #### Global Helpers
 
 def printdbg(level,string):
-    if level>1:
-        print string
+    if level>2:
+        print(string)
+
 def sanitize(x):
         if x.startswith('/'):
             x=x[1:]
@@ -37,7 +43,7 @@ def list2uniqueidlist(mylist):
     newlist=[]
     for x in mylist:
         quanti=newlist.count(x)
-        print x,quanti
+        printdbg(1,x+str(quanti))
         if quanti<1:
             newlist.append(x)
         else:
@@ -97,10 +103,10 @@ class tagmanager():
         #####da fare link a nuovi file (come le dir)
         #da togliere se non funnziona
         newlist=[]
-        print basefiles
+        printdbg(1,basefiles)
         for k in basefiles.keys():
             quanti=newlist.count(basefiles[k])
-            print x,quanti
+            printdbg(1,x+" "+str(quanti))
             if quanti<1:
                 newlist.append(basefiles[k])
             else:
@@ -110,7 +116,7 @@ class tagmanager():
         inverse=dict()
         for k in basefiles.keys():
             inverse[basefiles[k]]=k
-        print inverse
+        printdbg(1,inverse)
         return inverse
 
     def gettagfile(self,tagpath):
@@ -131,7 +137,7 @@ class tagmanager():
                 printdbg(1,"file "+subtag+" is in "+mytag)
                 realfile=reverse[subtag]
             else:
-                printdbg(1,"(tagstat) file not exist "+subtag)
+                printdbg(1,"(gettagfile) file not exist "+subtag)
                 raise FuseOSError(errno.ENOENT)
             printdbg(2,"------------ realfile is:"+realfile)
             return realfile
@@ -145,14 +151,15 @@ class tagmanager():
         #gestire se sub
         #gestire se sub
         if querytagpath.find('/#/')>-1:
-            printdbg(2,"----- query getattr ------------"+querytagpath)
+            printdbg(2,"----- queryfile getattr ------------"+querytagpath)
             #si deve creare la query e passarla
             query=querytagpath.split("/#/")
             printdbg(2,query)
             #da gestire la query (ispirandosi alla tagstat)
             #gestendo anche la querymal formata
             tags_inquery=query[0].replace("/"," ")
-            reverse=self.tagfilescache(query[0])
+            printdbg(1,"should search:"+query[1]+" in "+tags_inquery)
+            reverse=self.tagfilescache(tags_inquery)
             if query[1] in reverse.keys():
                 printdbg(1,"file "+query[1]+" is in "+query[0])
                 realfile=reverse[query[1]]
@@ -168,7 +175,7 @@ class tagmanager():
         printdbg(2,"in tagstat")
         via=1
         tag=sanitize(tag)
-        print "in tagstat tag:"+tag
+        printdbg(2,"in tagstat tag:"+tag)
         listatag= self.taglist()
         st = dict(st_mode=(S_IFDIR | 0o775),st_size =4096)
         if tag=="":
@@ -210,7 +217,7 @@ class tagmanager():
                     st = os.lstat(self.root+"/"+realfile)
                     via=0
             else:
-                raise FuseOSError(errno.EPERM)
+                raise FuseOSError(errno.ENOENT)
 
         #gestire se non esiste
         elif tag != "" and tag not in self.taglist():
@@ -233,7 +240,7 @@ class tagmanager():
         st['st_ino'] = 20000000
         #gestire se sub
         if querytagpath.find('/#/')>-1:
-            printdbg(2,"----- query getattr ------------"+querytagpath)
+            printdbg(2,"----- querystat getattr ------------"+querytagpath)
             #si deve creare la query e passarla
             query=querytagpath.split("/#/")
             printdbg(2,query)
@@ -242,6 +249,7 @@ class tagmanager():
             tags_inquery=query[0].replace("/"," ")
             ####paste
             reverse=self.tagfilescache(tags_inquery)
+            printdbg(2,reverse)
             if query[1]  in reverse.keys():
                 printdbg(2,"-----------------querytag--------------------")
                 printdbg(2,"file "+query[1]+" is in "+query[0])
@@ -319,8 +327,8 @@ class gluedfs(Operations):
         self.tagroot = "tag_"+root
         self.queryroot = "query_"+root
         self.tagman=tagmanager(root)
+        printdbg(3,"Starting GLUEDFS on dir : "+self.root)
         #init database
-        #output=sub.check_output("~/tmsu-x86_64-0.5.2/bin/tmsu tag \""+filepath+"\" "+self.mylabel, shell=True)
         self.tagman.db_init()
 
     # Helpers
@@ -493,7 +501,7 @@ class gluedfs(Operations):
                 tags_inquery=path[1:].split('/')
                 #rimanenti tag
                 rimanenti=[ x for x in self.tagman.taglist() if not x in tags_inquery]
-                print(rimanenti)
+                printdbg(2,rimanenti)
                 #dirents.extend(self.tagman.taglist())
                 dirents.extend(rimanenti)
                 dirents.append('#')
@@ -583,8 +591,8 @@ class gluedfs(Operations):
 
     def symlink(self, name, target):
         printdbg(2,"in symlink :"+name)
-        print name
-        print self._full_path(target)
+        printdbg(1,name)
+        printdbg(1,self._full_path(target))
         return os.symlink(name, self._full_path(target))
 
     def rename(self, old, new):
@@ -614,7 +622,7 @@ class gluedfs(Operations):
     def link(self, target, name):
         printdbg(2,"in link :"+target)
         printdbg(1, path)
-        print self._full_path(target)
+        printdbg1(1,self._full_path(target))
         return os.link(self._full_path(target), self._full_path(name))
 
     def utimens(self, path, times=None):
