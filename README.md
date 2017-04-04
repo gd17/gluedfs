@@ -46,9 +46,9 @@ dependencies: tmsu (https://github.com/oniony/TMSU) , python 2.7, python module 
 
 # Other info
 - I wrote this because I was bored to search files in filesystem, I wanted to keep order but not 
- change years of organization. Don't bother if you do something wrong in tags or query dir you can
-  delete files and dir in root_dir that's a trasparent copy of your-mounted-dir, in tag dir you can
-   only tag, untag items nothing else. 
+ change years of organization. Don't bother if you do something wrong in tag_dir or query_dir, you can
+  delete files and dir **only** in root_dir, that is a trasparent copy of your-mounted-dir, in 
+  tag_dir you can only tag, untag items **nothing else**. 
  - You can only tag files in root_dir not across filesystem. You'll find same name resolved by symlink.
 - I wrote it to have some-kind-file-organization transparent to apps but accessible from every
  app. You can easily export your tags or queries to other filesytems by copying them.
