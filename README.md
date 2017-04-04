@@ -40,6 +40,6 @@ dependencies: tmsu (https://github.com/oniony/TMSU) , python 2.7, python module 
 # Getting started
 - Fill testdir
 - check TMSU point to your tmsu bin 
-- in a terminal shell execute (pwd same as testdir) : **python gluedfs2_6.py test_dir/ mnt_test/**
+- in a terminal shell execute (pwd same as testdir) : **python gluedfs2_6.py testdir/ mnt_test/**
 - leave terminal open
 - start using tagging and enjoy **GLUEDFS**
