@@ -36,3 +36,10 @@ dependencies: tmsu (https://github.com/oniony/TMSU) , python 2.7, python module 
 - inside query_dir you can access files or dirs of YOURDIR
 - if more than one item has same name in one tag others are symbolic
   links to your items in YOURDIR
+
+# Getting started
+- Fill testdir
+- check TMSU point to your tmsu bin 
+- in a terminal shell execute (pwd same as testdir) : **python gluedfs2_6.py test_dir/ mnt_test/**
+- leave terminal open
+- start using tagging and enjoy **GLUEDFS**
