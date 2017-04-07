@@ -50,6 +50,11 @@ def list2uniqueidlist(mylist):
             newlist.append(x+".altro-"+str(quanti))
     return newlist
 
+def split_tag_path(path):
+    tagpath=path.split('/')
+    printdbg(2,tagpath)
+    return tagpath
+
 ### Class for Tags
 
 class tagmanager():
@@ -94,6 +99,7 @@ class tagmanager():
         lista = [sanitize(item) for item in lista]
         printdbg(1,lista)
         return lista
+
 
     def tagfilescache(self,tag):
         listafile=self.tagfiles(tag)
@@ -330,7 +336,6 @@ class gluedfs(Operations):
         printdbg(3,"Starting GLUEDFS on dir : "+self.root)
         #init database
         self.tagman.db_init()
-
     # Helpers
     # =======
 
@@ -595,13 +600,15 @@ class gluedfs(Operations):
         printdbg(1,self._full_path(target))
         return os.symlink(name, self._full_path(target))
 
-    def rename(self, old, new):
+    def oldrename(self, old, new):
         printdbg(2,"in rename :"+old+" "+new)
         oldfile=""
+        #split_tag_path(old)
         #########molto test
         ######### fine molto test
         #rename tag
         if old.find(self.tagroot)>0:
+            split_tag_path(old)
             printdbg(2,"in tag rename"+old)
             old=old.replace(self.tagroot, "", 1)
             new=new.replace(self.tagroot, "", 1)
@@ -611,6 +618,40 @@ class gluedfs(Operations):
             printdbg(2,"in rename to tag is add tag "+new+" to "+old)
             partial=new.replace(self.tagroot, "", 1)
             realfile=old.replace(self.fileroot,"",1)
+            printdbg(2,"in rename to tag is add tag "+partial+" to "+realfile)
+            if os.path.isdir(self._full_path(old)):
+                printdbg(2,"giving tag "+partial+" to "+old)
+                #raise FuseOSError(errno.EPERM)
+            return self.tagman.add2tag(partial,realfile)
+        printdbg(2,"rename standard"+ self._full_path(old))
+        return os.rename(self._full_path(old), self._full_path(new))
+
+    def rename(self, old, new):
+        printdbg(2,"in rename :"+old+" "+new)
+        oldfile=""
+        #split_tag_path(old)
+        #########molto test
+        ######### fine molto test
+        #rename tag
+        #tag2tag
+        #tagfile2tag
+        #queryfile2tag
+        pathlist=split_tag_path(old)
+        if old.find(self.tagroot)>0 and len(pathlist)==3:
+            printdbg(2,"in tag rename"+old)
+            old=old.replace(self.tagroot, "", 1)
+            new=new.replace(self.tagroot, "", 1)
+            return self.tagman.renametag(old,new)
+        #rename file (mettere nel tag)
+        if new.find(self.tagroot)>0:
+            if old.find(self.tagroot)>0 and len(pathlist)==4:
+                realfile=self.path2tagfile(old)
+            elif old.find(self.queryroot)>0:
+                realfile=self.path2tagfile(old)
+            else:
+                printdbg(2,"in rename to tag is add tag "+new+" to "+old)
+                realfile=old.replace(self.fileroot,"",1)
+            partial=new.replace(self.tagroot, "", 1)
             printdbg(2,"in rename to tag is add tag "+partial+" to "+realfile)
             if os.path.isdir(self._full_path(old)):
                 printdbg(2,"giving tag "+partial+" to "+old)
