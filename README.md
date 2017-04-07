@@ -54,4 +54,5 @@ dependencies: tmsu (https://github.com/oniony/TMSU) , python 2.7, python module 
  app. You can easily export your tags or queries to other filesytems by copying them.
  - Some filebrowsers expect something in changing filesystems to optimize their view, simply refresh
   window if something is not as you expected.
-  
+- In the example tags begin with **#** e.g. **#tag1, #tag2, #photo** this is my personal convention to 
+ distinguish tag from dirs, but it'not mandatory at all. You can choose names as you like.
